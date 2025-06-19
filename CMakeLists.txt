@@ -1,10 +1,71 @@
 cmake_minimum_required(VERSION 3.21)
 project(REACTORWEBSERVER)
-set(CMAKE_C_STANDARD 17)  # 或 99/11/17/23 等
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS ON)  # 启用GNU扩展（等效于-std=gnu11）
+
+include (cmake/utils.cmake)
+
+# 1. 基本配置
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_ENABLE_EXPORTS ON)  # -rdynamic
+
+# 2. 输出目录设置
 set(OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_DIRECTORY}/output)
-file(GLOB SRC_LIST_C ${CMAKE_CURRENT_SOURCE_DIR}/src/*.c)
-add_executable(${PROJECT_NAME} ${SRC_LIST_C})
+
+# 3. C++标准设置
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# 4. 按构建类型设置
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb -fno-omit-frame-pointer")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+
+# 5. 源文件收集（建议改为显式列表）
+# file(GLOB SRC_LIST ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+set(SRC_LIST src/func_file.cpp 
+    src/util.cpp
+    src/thread.cpp
+    src/main.cpp)
+
+6. 添加可执行文件
+add_executable(${PROJECT_NAME} ${SRC_LIST})
+
+# set(SRC_LIST_LIBRARY 
+#     src/util.cpp
+#     src/thread.cpp
+# )
+
+# add_library(${PROJECT_NAME} SHARED ${SRC_LIST_LIBRARY})
+
+# 强制覆盖 __FILE__ 宏
+force_redefine_file_macro_for_sources(${PROJECT_NAME})
+
+
+# 7. 目标级配置
 target_include_directories(${PROJECT_NAME} PRIVATE include)
+
+target_compile_options(${PROJECT_NAME} PRIVATE
+    "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall>"
+    "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wextra>"
+    "$<$<CXX_COMPILER_ID:GNU,Clang>:-Werror>"
+    "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wno-builtin-macro-redefined>"  # 禁用 -Werror 对 __FILE__ 重定义的警告​​ （其实是忽略了内置宏被重新定义的警告）
+    "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wno-deprecated-declarations>"
+    "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wno-unused-function>"
+)
+
+# 8. 线程支持
+find_package(Threads REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+
+# 9. SPDLOG 配置
+option(SPDLOG_LEVEL "Set SPDLOG_ACTIVE_LEVEL (default: INFO)" INFO)
+set(SPDLOG_LEVEL_VALUES TRACE DEBUG INFO WARN ERROR CRITICAL OFF)
+set_property(CACHE SPDLOG_LEVEL PROPERTY STRINGS ${SPDLOG_LEVEL_VALUES})
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE 
+    SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_${SPDLOG_LEVEL}
+)
+
+# 10. 包含子目录
+add_subdirectory(tests)
