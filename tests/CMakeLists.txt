@@ -35,7 +35,7 @@ get_filename_component(ABS_SRC_DIR_INCLUDE ../include ABSOLUTE)
 # add_executable(mytest_example ../src/func_file.cpp mytest.cpp)
 add_executable(mytest_example mytest.cpp)
 force_redefine_file_macro_for_sources(mytest_example)
-
+add_dependencies(mytest_example REACTORWEBSERVER)
 target_link_libraries(mytest_example GTest::GTest GTest::Main)
 # target_include_directories(mytest_example PRIVATE ../include)
 target_include_directories(mytest_example PUBLIC ${ABS_SRC_DIR_INCLUDE})
@@ -46,6 +46,18 @@ gtest_discover_tests(mytest_example)
 # find_package(REACTORWEBSERVER)  刚刚生成的库 不需要find_package 能够找到
 
 add_executable(test_mylib test_thread.cpp)
+force_redefine_file_macro_for_sources(test_mylib)
 add_dependencies(test_mylib REACTORWEBSERVER)
+target_include_directories(test_mylib PUBLIC ${ABS_SRC_DIR_INCLUDE})
 target_link_libraries(test_mylib PRIVATE REACTORWEBSERVER)
-target_link_libraries(test_mylib PUBLIC ${ABS_SRC_DIR_INCLUDE})
+
+
+
+# test_loggers
+
+add_executable(test_loggers test_logger.cpp)
+force_redefine_file_macro_for_sources(test_loggers)
+# message(messagetest_loggers: ${ABS_SRC_DIR_INCLUDE})
+add_dependencies(test_loggers REACTORWEBSERVER)
+target_include_directories(test_loggers PUBLIC ${ABS_SRC_DIR_INCLUDE})
+target_link_libraries(test_loggers PRIVATE REACTORWEBSERVER)

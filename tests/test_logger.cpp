@@ -1,3 +1,4 @@
+
 #include "controllogger.h"
 
 int main(void)
@@ -8,16 +9,17 @@ int main(void)
     // config.pattern = "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] %v";
     // ControlLogger::instance().initialize(config);
 
-    // // 添加输出目标
+    // // // 添加输出目标
     // ControlLogger::instance().addConsoleSink("main", ControlLogger::Level::DEBUG);
     // ControlLogger::instance().addRotatingFileSink("main", "logs/app.log",
     //                                                ControlLogger::Level::INFO, 1024 * 1024 * 5, 3);
 
     // 方式2: 从文件加载配置
-    ControlLogger::instance().initializeFromFile("config.json");
+    ControlLogger::instance().initializeFromFile("config/config.json");
 
     //记录日志
-    ULOG_INFO
+    ULOG_INFO("main","Application started");
+    // ULOG_DEBUG("main","Initializing with config:{}",config_json.dump());
 
     return 0;
 }

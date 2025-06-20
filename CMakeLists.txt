@@ -37,6 +37,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(SRC_LIST_LIBRARY 
     src/util.cpp
     src/thread.cpp
+    src/controllogger.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST_LIBRARY})

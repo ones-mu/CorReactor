@@ -5,3 +5,4 @@ documents/
 output/
 include/nlohmann
 include/spdlog
+logs/
