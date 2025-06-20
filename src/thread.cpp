@@ -1,6 +1,7 @@
+#include <stdexcept>
 #include "thread.h"
 #include "util.h"
-#include <stdexcept>
+#include "controllogger.h"
 
 namespace version04
 {
@@ -35,9 +36,11 @@ namespace version04
         int rt=pthread_create(&m_thread,nullptr,Thread::run,this); 
         if(rt!=0)
         {
-
+            // ULOG_ERROR("system","pthread_create error");
+            ULOG_ERROR("system","pthread_create error,rt={} name={}",rt,m_name);
             throw std::logic_error("pthread_create error");
         }
+        m_semphore.wait();
     }
     Thread::~Thread()
     {
@@ -53,8 +56,11 @@ namespace version04
             int rt=pthread_join(m_thread,nullptr);//这个类的创建和类相关函数的调用是主线程做的，只有Thread::run其实是子线程执行的
             if(rt)
             {
+                // ULOG_ERROR("system","pthread_join error");
+                ULOG_ERROR("system","pthread_join error,rt={} name={}",rt,m_name);
                 throw std::logic_error("pthread_join error");
             }
+            m_thread=0;
         }
     }
 
@@ -68,12 +74,44 @@ namespace version04
         thread->m_id=version04::GetThreadId();
         //给线程id重命名，只能是16个字符
         //pthread_setname_np(pthread_self(),thread->m_name.c_str()); 是linux中特有的函数
-        pthread_setname_np(pthread_self(),thread->m_name.substr(0,16).c_str()); 
+        pthread_setname_np(pthread_self(),thread->m_name.substr(0,15).c_str()); 
 
         std::function<void()> cb;
         cb.swap(thread->m_cb); // 任务转移到 cb，thread->m_cb 变为空
 
+        thread->m_semphore.notify(); // 通知主线程，线程已经创建完成，可以开始运行了
         cb();
         return 0;
+    }
+
+
+
+    Semphore::Semphore(uint32_t count)
+    {
+
+        if(sem_init(&m_semaphore,0,count))
+        {
+            throw std::logic_error("sem_init error");
+        }
+    }
+
+    Semphore::~Semphore()
+    {
+        sem_destroy(&m_semaphore);
+    }
+
+    void Semphore::wait()
+    {
+        if(sem_wait(&m_semaphore))
+        {
+            throw std::logic_error("sem_wait error");
+        }
+    }
+    void Semphore::notify()
+    {
+        if(sem_post(&m_semaphore))
+        {
+            throw std::logic_error("sem_post error");
+        }
     }
 }

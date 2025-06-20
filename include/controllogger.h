@@ -70,8 +70,21 @@ public:
     bool initialize(const Config &config);
     bool initializeFromFile(const std::string &config_path);
     // 日志记录接口
+    // template <typename... Args>
+    // void log(Level level, const std::string &logger_name, Args &&...args)
+    // {
+    //     if (!initialized_)
+    //         return;
+    //     auto logger = getLogger(logger_name);
+    //     if (logger)
+    //     {
+    //         logger->log(static_cast<spdlog::level::level_enum>(level),
+    //                     std::forward<Args>(args)...);
+    //     }
+    // }
     template <typename... Args>
-    void log(Level level, const std::string &logger_name, Args &&...args)
+    void log(Level level, const std::string &logger_name,
+             fmt::format_string<Args...> fmt, Args &&...args)
     {
         if (!initialized_)
             return;
@@ -79,7 +92,7 @@ public:
         if (logger)
         {
             logger->log(static_cast<spdlog::level::level_enum>(level),
-                        std::forward<Args>(args)...);
+                        fmt, std::forward<Args>(args)...);
         }
     }
     // 添加输出目标

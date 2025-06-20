@@ -13,6 +13,7 @@ namespace version04 {
 pid_t GetThreadId();
 uint32_t GetFiberId();
 
+void initLogs();
 }
 
 #endif

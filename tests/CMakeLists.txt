@@ -45,11 +45,11 @@ gtest_discover_tests(mytest_example)
 
 # find_package(REACTORWEBSERVER)  刚刚生成的库 不需要find_package 能够找到
 
-add_executable(test_mylib test_thread.cpp)
-force_redefine_file_macro_for_sources(test_mylib)
-add_dependencies(test_mylib REACTORWEBSERVER)
-target_include_directories(test_mylib PUBLIC ${ABS_SRC_DIR_INCLUDE})
-target_link_libraries(test_mylib PRIVATE REACTORWEBSERVER)
+add_executable(test_thread test_thread.cpp)
+force_redefine_file_macro_for_sources(test_thread)
+add_dependencies(test_thread REACTORWEBSERVER)
+target_include_directories(test_thread PUBLIC ${ABS_SRC_DIR_INCLUDE})
+target_link_libraries(test_thread PRIVATE REACTORWEBSERVER)
 
 
 

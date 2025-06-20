@@ -6,3 +6,4 @@ output/
 include/nlohmann
 include/spdlog
 logs/
+Base/

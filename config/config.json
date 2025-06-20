@@ -32,6 +32,18 @@
                     "minute": 0
                 }
             ]
+        },
+        {
+            "name":"system",
+            "sinks":[
+                {
+                    "type":"rotating_file",
+                    "filepath":"logs/system.log",
+                    "level":"ERROR",
+                    "max_size":1048576,
+                    "max_files":5
+                }
+            ]
         }
     ]
 }
