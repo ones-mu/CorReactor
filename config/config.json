@@ -1,0 +1,37 @@
+{
+    "mode": "ASYNC",
+    "pattern": "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%n] [%s:%#] %v",
+    "flush_interval": 3,
+    "flush_level": "WARN",
+    "async_queue_size": 8192,
+    "loggers": [
+        {
+            "name": "main",
+            "sinks": [
+                {
+                    "type": "console",
+                    "level": "DEBUG"
+                },
+                {
+                    "type": "rotating_file",
+                    "filepath": "logs/main.log",
+                    "level": "INFO",
+                    "max_size": 5242880,
+                    "max_files": 3
+                }
+            ]
+        },
+        {
+            "name": "network",
+            "sinks": [
+                {
+                    "type": "daily_file",
+                    "filepath": "logs/network.log",
+                    "level": "DEBUG",
+                    "hour": 0,
+                    "minute": 0
+                }
+            ]
+        }
+    ]
+}

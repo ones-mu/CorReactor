@@ -8,9 +8,12 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_ENABLE_EXPORTS ON)  # -rdynamic
 
-# 2. 输出目录设置
+# 2. 输出目录设置 只会控制可执行文件的输出路径
 set(OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_DIRECTORY}/output)
+
+## 控制动态链接库的输出路径
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  ##这样后会输出在build下的lib文件夹下
 
 # 3. C++标准设置
 set(CMAKE_CXX_STANDARD 20)
@@ -23,27 +26,27 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # 5. 源文件收集（建议改为显式列表）
 # file(GLOB SRC_LIST ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-set(SRC_LIST src/func_file.cpp 
-    src/util.cpp
-    src/thread.cpp
-    src/main.cpp)
-
-6. 添加可执行文件
-add_executable(${PROJECT_NAME} ${SRC_LIST})
-
-# set(SRC_LIST_LIBRARY 
+# set(SRC_LIST src/func_file.cpp 
 #     src/util.cpp
 #     src/thread.cpp
-# )
+#     src/main.cpp)
 
-# add_library(${PROJECT_NAME} SHARED ${SRC_LIST_LIBRARY})
+# 6. 添加可执行文件
+# add_executable(${PROJECT_NAME} ${SRC_LIST})
+
+set(SRC_LIST_LIBRARY 
+    src/util.cpp
+    src/thread.cpp
+)
+
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST_LIBRARY})
 
 # 强制覆盖 __FILE__ 宏
 force_redefine_file_macro_for_sources(${PROJECT_NAME})
 
 
 # 7. 目标级配置
-target_include_directories(${PROJECT_NAME} PRIVATE include)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wall>"

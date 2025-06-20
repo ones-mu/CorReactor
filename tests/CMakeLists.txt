@@ -38,9 +38,14 @@ force_redefine_file_macro_for_sources(mytest_example)
 
 target_link_libraries(mytest_example GTest::GTest GTest::Main)
 # target_include_directories(mytest_example PRIVATE ../include)
-target_include_directories(mytest_example PRIVATE ${ABS_SRC_DIR_INCLUDE})
+target_include_directories(mytest_example PUBLIC ${ABS_SRC_DIR_INCLUDE})
 gtest_discover_tests(mytest_example)
 
 
 
-# find_package(REACTORWEBSERVER)
+# find_package(REACTORWEBSERVER)  刚刚生成的库 不需要find_package 能够找到
+
+add_executable(test_mylib test_thread.cpp)
+add_dependencies(test_mylib REACTORWEBSERVER)
+target_link_libraries(test_mylib PRIVATE REACTORWEBSERVER)
+target_link_libraries(test_mylib PUBLIC ${ABS_SRC_DIR_INCLUDE})
