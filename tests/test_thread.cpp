@@ -4,7 +4,8 @@
 #include "util.h"
 
 int count=0;
-version04::RWMutex s_mutex;
+// version04::RWMutex s_mutex;
+version04::Mutex s_mutex;
 
 void func1()
 {
@@ -19,11 +20,25 @@ void func1()
     int nums=100000;
     for(int i=0;i<nums; ++i)
     {
-        version04::RWMutex::WriteLock lock(s_mutex);
+        // version04::RWMutex::WriteLock lock(s_mutex);
+        version04::Mutex::Lock lock(s_mutex);
         ++count;
     }
 }
 
+void func2()
+{
+    while(true)
+    ULOG_INFO("main","func2 runxxxxxxxxxxxxxxxxxxxxxxx");
+}
+
+void func3()
+{
+    while(true)
+    {
+        ULOG_INFO("main","func3 run====================");
+    }
+}
 
 
 int main(int argc, char* argv[])
@@ -35,9 +50,13 @@ int main(int argc, char* argv[])
     for(int i =0; i < nums; ++i) 
     {
         version04::Thread::ptr thr(new version04::Thread(&func1,"name_"+std::to_string(i)));
+        version04::Thread::ptr thr2(new version04::Thread(&func2,"name2_"+std::to_string(i*2)));
+        version04::Thread::ptr thr3(new version04::Thread(&func3,"name2_"+std::to_string(i*2+1)));
         thrs.push_back(thr);
+        thrs.push_back(thr2);
+        thrs.push_back(thr3);
     }
-    for(int i=0; i<nums; ++i)
+    for(int i=0; i<thrs.size(); ++i)
     {
         thrs[i]->join();
     }

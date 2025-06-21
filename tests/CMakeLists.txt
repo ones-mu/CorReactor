@@ -61,3 +61,13 @@ force_redefine_file_macro_for_sources(test_loggers)
 add_dependencies(test_loggers REACTORWEBSERVER)
 target_include_directories(test_loggers PUBLIC ${ABS_SRC_DIR_INCLUDE})
 target_link_libraries(test_loggers PRIVATE REACTORWEBSERVER)
+
+#---
+# test_utils
+
+add_executable(test_utils test_util.cpp)
+force_redefine_file_macro_for_sources(test_utils)
+# message(messagetest_loggers: ${ABS_SRC_DIR_INCLUDE})
+add_dependencies(test_utils REACTORWEBSERVER)
+target_include_directories(test_utils PUBLIC ${ABS_SRC_DIR_INCLUDE})
+target_link_libraries(test_utils PRIVATE REACTORWEBSERVER)

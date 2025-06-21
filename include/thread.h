@@ -15,6 +15,9 @@ c++ std::thread
 #include <string>
 #include <stdint.h>    //uint32_t
 #include <semaphore.h> //sem_t
+#include <atomic>      //std::atomic_flag
+#include <assert.h>    //assert
+// #include <sys/types.h> //pid_t
 
 namespace version04
 {
@@ -150,7 +153,30 @@ namespace version04
         T &m_mutex;
         bool m_locked;
     };
+    class Mutex
+    {
+    public:
+        using Lock = ScopedLockImpl<Mutex>;
+        Mutex()
+        {
+            pthread_mutex_init(&m_mutex, nullptr);
+        }
+        ~Mutex()
+        {
+            pthread_mutex_destroy(&m_mutex);
+        }
+        void lock()
+        {
+            pthread_mutex_lock(&m_mutex);
+        }
+        void unlock()
+        {
+            pthread_mutex_unlock(&m_mutex);
+        }
 
+    private:
+        pthread_mutex_t m_mutex;
+    };
     class RWMutex
     {
     public:
@@ -184,6 +210,107 @@ namespace version04
 
     private:
         pthread_rwlock_t m_lock;
+    };
+
+    class NullRWMutex
+    {
+    public:
+        typedef ReadScopedLockImpl<NullRWMutex> ReadLock;
+        typedef WriteScopedLockImpl<NullRWMutex> WriteLock;
+        NullRWMutex() {}
+        ~NullRWMutex() {}
+        void rdlock() {}
+        void wrlock() {}
+        void unlock() {}
+    };
+    // 自旋锁
+    //  class SpinLock
+    //  {
+    //      public:
+    //      using Lock = ScopedLockImpl<SpinLock>;
+    //      SpinLock()
+    //      {
+    //          pthread_spin_init(&m_mutex,0);
+    //      }
+    //      ~SpinLock()
+    //      {
+    //          pthread_spin_destroy(&m_mutex);
+    //      }
+    //      void lock()
+    //      {
+    //          pthread_spin_lock(&m_mutex);
+    //      }
+    //      void unlock()
+    //      {
+    //          pthread_spin_unlock(&m_mutex);
+    //      }
+
+    //     private:
+    //     pthread_spinlock_t m_mutex;
+    // };
+    class Spinlock
+    {
+    public:
+        using Lock = ScopedLockImpl<Spinlock>;
+
+        Spinlock()
+        {
+            int ret = pthread_spin_init(&m_mutex, 0);
+            if (ret != 0)
+            { /* 处理错误 */
+            }
+        }
+
+        ~Spinlock()
+        {
+            pthread_spin_destroy(&m_mutex);
+        }
+
+        void lock()
+        {
+            int ret = pthread_spin_lock(&m_mutex);
+            assert(ret == 0);
+        }
+
+        void unlock()
+        {
+            int ret = pthread_spin_unlock(&m_mutex);
+            assert(ret == 0);
+        }
+
+        Spinlock(const Spinlock &) = delete;
+        Spinlock &operator=(const Spinlock &) = delete;
+
+    private:
+        pthread_spinlock_t m_mutex;
+    };
+    // 实现了一个基于原子操作的自旋锁
+
+    class CASLock
+    {
+    public:
+        using Lock = ScopedLockImpl<CASLock>;
+        CASLock()
+        {
+            m_mutex.clear();
+        }
+        ~CASLock()
+        {
+        }
+
+        void lock()
+        {
+            while (std::atomic_flag_test_and_set_explicit(&m_mutex, std::memory_order_acquire))
+                ;
+        }
+
+        void unlock()
+        {
+            std::atomic_flag_clear_explicit(&m_mutex, std::memory_order_release);
+        }
+
+    private:
+        volatile std::atomic_flag m_mutex;
     };
 
     class Thread
