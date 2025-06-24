@@ -1,6 +1,6 @@
 {
     "mode": "ASYNC",
-    "pattern": "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%n] [%s:%#] %v",
+    "pattern": "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%n] %v",
     "flush_interval": 3,
     "flush_level": "WARN",
     "async_queue_size": 8192,

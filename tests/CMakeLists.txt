@@ -71,3 +71,12 @@ force_redefine_file_macro_for_sources(test_utils)
 add_dependencies(test_utils REACTORWEBSERVER)
 target_include_directories(test_utils PUBLIC ${ABS_SRC_DIR_INCLUDE})
 target_link_libraries(test_utils PRIVATE REACTORWEBSERVER)
+
+
+# test_fiber
+add_executable(test_fiber test_fiber.cpp)
+force_redefine_file_macro_for_sources(test_fiber)
+# message(messagetest_loggers: ${ABS_SRC_DIR_INCLUDE})
+add_dependencies(test_fiber REACTORWEBSERVER)
+target_include_directories(test_fiber PUBLIC ${ABS_SRC_DIR_INCLUDE})
+target_link_libraries(test_fiber PRIVATE REACTORWEBSERVER)

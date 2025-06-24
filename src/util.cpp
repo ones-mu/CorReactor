@@ -1,6 +1,7 @@
 #include "util.h"
 #include <execinfo.h>
 #include "controllogger.h"
+#include "fiber.h"
 namespace version04
 {
     pid_t GetThreadId()
@@ -8,9 +9,9 @@ namespace version04
         return syscall(SYS_gettid); // 获取的是子线程的Id而不是进程的Id 完全等价于gettid()
     }
 
-    uint32_t GetFiberId()
+    uint64_t GetFiberId()
     {
-        return 0;
+        return version04::Fiber::GetFiberId();
     }
 
     void Backtrace(std::vector<std::string> &bt, int size, int skip)
@@ -42,5 +43,19 @@ namespace version04
             ss<<prefix<<s<<std::endl;
         }
         return ss.str();
+    }
+
+    int evaluate_expression(const std::string& expr)
+    {
+        size_t pos=expr.find('*');
+        if(pos!=std::string::npos)
+        {
+            int a=std::stoi(expr.substr(0,pos));
+            int b=std::stoi(expr.substr(pos+1));
+            return a*b;
+        }else
+        {
+            return std::stoi(expr);//如果不是表达式，直接转换
+        }
     }
 }

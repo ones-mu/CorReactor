@@ -7,6 +7,7 @@ int main(void)
     // ControlLogger::Config config;
     // config.mode = ControlLogger::OutputMode::ASYNC;
     // config.pattern = "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] %v";
+    //"[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%n] [%s:%#] %v"
     // ControlLogger::instance().initialize(config);
 
     // // // 添加输出目标

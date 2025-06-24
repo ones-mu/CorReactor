@@ -8,6 +8,7 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/daily_file_sink.h>
 #include "nlohmann/json.hpp"
+#include "util.h"
 using json = nlohmann::json;
 
 // 便捷日志宏
@@ -17,7 +18,30 @@ using json = nlohmann::json;
 #define ULOG_WARN(logger, ...) ControlLogger::instance().log(ControlLogger::Level::WARN, logger, __VA_ARGS__)
 #define ULOG_ERROR(logger, ...) ControlLogger::instance().log(ControlLogger::Level::ERROR, logger, __VA_ARGS__)
 #define ULOG_CRITICAL(logger, ...) ControlLogger::instance().log(ControlLogger::Level::CRITICAL, logger, __VA_ARGS__)
+/*
+#define ULOG_TRACE(logger, ...) \
+    ControlLogger::instance().log(ControlLogger::Level::TRACE, logger, \
+        "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
 
+#define ULOG_DEBUG(logger, ...) \
+    ControlLogger::instance().log(ControlLogger::Level::DEBUG, logger, \
+        "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
+
+#define ULOG_INFO(logger, ...) \
+    ControlLogger::instance().log(ControlLogger::Level::INFO, logger, \
+        "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
+
+#define ULOG_WARN(logger, ...) \
+    ControlLogger::instance().log(ControlLogger::Level::WARN, logger, \
+        "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
+#define ULOG_ERROR(logger, ...) \
+    ControlLogger::instance().log(ControlLogger::Level::ERROR, logger, \
+        "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
+
+#define ULOG_CRITICAL(logger, ...) \
+    ControlLogger::instance().log(ControlLogger::Level::CRITICAL, logger, \
+        "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
+*/
 // 带源文件位置的日志宏
 #define ULOG_TRACE_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::TRACE, logger, "{}:{} - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
 #define ULOG_DEBUG_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::DEBUG, logger, "{}:{} - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
@@ -91,8 +115,14 @@ public:
         auto logger = getLogger(logger_name);
         if (logger)
         {
-            logger->log(static_cast<spdlog::level::level_enum>(level),
-                        fmt, std::forward<Args>(args)...);
+            // 添加线程和纤程ID前缀
+            auto full_msg = fmt::format("[Thread:{}][Fiber:{}] {}", 
+                                  version04::GetThreadId(), 
+                                  version04::GetFiberId(),
+                                  fmt::format(fmt,std::forward<Args>(args)...));
+            // logger->log(static_cast<spdlog::level::level_enum>(level),
+            //             fmt, std::forward<Args>(args)...);
+             logger->log(static_cast<spdlog::level::level_enum>(level), full_msg);
         }
     }
     // 添加输出目标
