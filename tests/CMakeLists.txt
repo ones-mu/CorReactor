@@ -80,3 +80,21 @@ force_redefine_file_macro_for_sources(test_fiber)
 add_dependencies(test_fiber REACTORWEBSERVER)
 target_include_directories(test_fiber PUBLIC ${ABS_SRC_DIR_INCLUDE})
 target_link_libraries(test_fiber PRIVATE REACTORWEBSERVER)
+
+
+#test_scheduler
+add_executable(test_scheduler test_scheduler.cpp)
+force_redefine_file_macro_for_sources(test_scheduler)
+# message(messagetest_loggers: ${ABS_SRC_DIR_INCLUDE})
+add_dependencies(test_scheduler REACTORWEBSERVER)
+target_include_directories(test_scheduler PUBLIC ${ABS_SRC_DIR_INCLUDE})
+target_link_libraries(test_scheduler PRIVATE REACTORWEBSERVER)
+
+#test_evaluate_expression
+
+add_executable(test_evaluate_expression test_evaluate_expression.cpp)
+force_redefine_file_macro_for_sources(test_evaluate_expression)
+# message(messagetest_loggers: ${ABS_SRC_DIR_INCLUDE})
+add_dependencies(test_evaluate_expression REACTORWEBSERVER)
+target_include_directories(test_evaluate_expression PUBLIC ${ABS_SRC_DIR_INCLUDE})
+target_link_libraries(test_evaluate_expression PRIVATE REACTORWEBSERVER)

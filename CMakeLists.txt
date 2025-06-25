@@ -40,6 +40,7 @@ set(SRC_LIST_LIBRARY
     src/thread.cpp
     src/controllogger.cpp
     src/fiber.cpp
+    src/scheduler.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST_LIBRARY})

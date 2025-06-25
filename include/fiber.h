@@ -8,11 +8,14 @@
 #include "controllogger.h"
 #include "read_config.h"
 #include "util.h"
+// #include "scheduler.h"
 namespace version04
 {
+    class Scheduler;
     class Fiber : public std::enable_shared_from_this<Fiber>
     {
         public:
+            friend class Scheduler; //为了可以在Scheduler对当前类private和protected中的变量进行访问
             using ptr=std::shared_ptr<Fiber>;
 
             enum class State{
@@ -27,7 +30,7 @@ namespace version04
             Fiber();  //不是说使用了enable_shared_from_this之后  构造函数要是public 或是protected吗
         
         public:
-            Fiber(std::function<void()> cb,size_t stacksize=0);
+            Fiber(std::function<void()> cb,size_t stacksize=0,bool use_caller=false);
             ~Fiber();
             
             //重置协程函数、并重置状态
@@ -39,6 +42,7 @@ namespace version04
             void swapOut();
 
             void call();
+            void back();
 
             uint64_t getId() const {return m_id;}
 
@@ -56,6 +60,7 @@ namespace version04
             static uint64_t TotalFibers();
 
             static void MainFunc();
+            static void CallerMainFunc();
             static uint64_t GetFiberId();
 
         

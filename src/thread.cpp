@@ -29,6 +29,7 @@ namespace version04
     }
     Thread::Thread(std::function<void()> cb, const std::string &name):m_cb(cb),m_name(name)
     {
+        ULOG_DEBUG("main","Thread::Thread: {}",m_name);
         if(name.empty())
         {
             m_name="UNKNOWN";

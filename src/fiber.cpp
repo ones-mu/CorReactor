@@ -1,5 +1,5 @@
 #include "fiber.h"
-
+#include "scheduler.h"
 namespace version04
 {
     // 全局静态变量，用于生成协程id
@@ -56,12 +56,12 @@ namespace version04
     /*
         有参构造函数，用于创建子协程
     */
-    Fiber::Fiber(std::function<void()> cb, size_t stacksize):m_id(++s_fiber_id), m_cb(cb)
+    Fiber::Fiber(std::function<void()> cb, size_t stacksize,bool use_caller):m_id(++s_fiber_id), m_cb(cb)
     {
         ++s_fiber_count;
-        // nlohmann::json config_json_base = get_config();
-        // std::string expr = config_json_base["fiber"]["stack_size"];
-        // m_stacksize = stacksize ? stacksize : version04::evaluate_expression(expr);
+        nlohmann::json config_json_base = get_config();
+        std::string expr = config_json_base["fiber"][0]["stack_size"];
+        m_stacksize = stacksize ? stacksize : version04::evaluate_expression(expr);
         m_stacksize=stacksize;
         m_stack = StackAllocator::Alloc(m_stacksize);
         if (getcontext(&m_ctx))
@@ -71,7 +71,14 @@ namespace version04
         m_ctx.uc_link = nullptr;
         m_ctx.uc_stack.ss_sp = m_stack;
         m_ctx.uc_stack.ss_size = m_stacksize;
-        makecontext(&m_ctx, Fiber::MainFunc, 0);
+        if(!use_caller)
+        {
+
+            makecontext(&m_ctx, Fiber::MainFunc, 0);
+        }else
+        {
+            makecontext(&m_ctx,&Fiber::CallerMainFunc,0);
+        }
 
         ULOG_DEBUG("main", "Fiber::Fiber id= {}", m_id);
     }
@@ -154,6 +161,35 @@ namespace version04
         VERSION04_ASSERT2(false,"never reach fiber_id= "+std::to_string(raw_ptr->getId()));
     }
 
+     void Fiber::CallerMainFunc()
+    {
+        Fiber::ptr cur = GetThis();
+        VERSION04_ASSERT2(cur, "Fiber::MainFunc");
+        try
+        {
+            cur->m_cb();
+            cur->m_cb = nullptr;
+            cur->m_state = State::TERM;
+        }
+        catch (std::exception &ex)
+        {
+            cur->m_state = State::EXCEPT;
+            ULOG_ERROR("system", "Fiber Except: {} fiber_id= {}\n", ex.what(), cur->getId());
+            VERSION04_ASSERT(false);
+        }
+        catch (...)
+        {
+
+            cur->m_state = State::EXCEPT;
+            ULOG_ERROR("system", "Fiber Except, fiber_id= {}\n", cur->getId());
+            VERSION04_ASSERT(false);
+        }
+        auto raw_ptr=cur.get();
+        cur.reset();
+        raw_ptr->back();
+        VERSION04_ASSERT2(false,"never reach fiber_id= "+std::to_string(raw_ptr->getId()));
+    }
+
     // 重置协程函数，并重置状态
     // 当一个线程执行完毕后，为了充分利用这个内存，基于这个内存再去创建一个新的协程
     void Fiber::reset(std::function<void()> cb)
@@ -184,6 +220,15 @@ namespace version04
             VERSION04_ASSERT2(false, "call() swapcontext");
         }
     }
+    void Fiber::back()
+    {
+        SetThis(t_threadFiber.get());
+        // m_state=State::READY;
+        if (swapcontext(&m_ctx, &t_threadFiber->m_ctx))
+        {
+            VERSION04_ASSERT2(false, "swapout() swapcontext");
+        }
+    }
 
     // 将目标唤醒到当前协程执行 将当前正在运行的切换到后台，运行自己
     void Fiber::swapIn()
@@ -191,7 +236,7 @@ namespace version04
         SetThis(this);
         VERSION04_ASSERT2(m_state != State::EXEC, "swapIn()");
         m_state = State::EXEC;
-        if (swapcontext(&t_threadFiber->m_ctx, &m_ctx))
+        if (swapcontext(&Scheduler::GetMainFiber()->m_ctx, &m_ctx))
         {
             VERSION04_ASSERT2(false, "swapIn() swapcontext");
         }
@@ -200,7 +245,7 @@ namespace version04
     {
         SetThis(t_threadFiber.get());
         // m_state=State::READY;
-        if (swapcontext(&m_ctx, &t_threadFiber->m_ctx))
+        if (swapcontext(&m_ctx, &Scheduler::GetMainFiber()->m_ctx))
         {
             VERSION04_ASSERT2(false, "swapout() swapcontext");
         }
