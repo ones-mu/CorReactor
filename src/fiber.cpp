@@ -62,7 +62,7 @@ namespace version04
         nlohmann::json config_json_base = get_config();
         std::string expr = config_json_base["fiber"][0]["stack_size"];
         m_stacksize = stacksize ? stacksize : version04::evaluate_expression(expr);
-        m_stacksize=stacksize;
+        // ULOG_INFO("main", "Fiber::Fiber id= {}, stacksize= {}", m_id, m_stacksize);
         m_stack = StackAllocator::Alloc(m_stacksize);
         if (getcontext(&m_ctx))
         {
