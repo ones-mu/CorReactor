@@ -30,7 +30,7 @@ namespace version04
         template<class FiberOrcb>
         void schedule(FiberOrcb fc,int thread=-1)
         {
-            ULOG_INFO("main","schedule add");
+            ULOG_INFO_SRC("main","schedule add");
             bool need_tickle=false;
             {
                 MutexType::Lock lock(m_mutex);

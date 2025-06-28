@@ -6,7 +6,7 @@
 //如果可以将栈上的一些信息输出，那就可以很快的找到这个问题
 void test_assert() {
     // assert(0);
-    ULOG_ERROR("system","test_assert");
+    ULOG_ERROR_SRC("system","test_assert");
     VERSION04_ASSERT2(0==1,"test_assert func string");
 }
 

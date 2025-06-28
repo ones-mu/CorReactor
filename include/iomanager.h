@@ -24,15 +24,20 @@ namespace version04
         };
 
     private:
+    ///Socket事件上线文类
         // 一个事件的类来装这些事件  fd是句柄
         struct FdContext
         {
             using MutexType = version04::Mutex;
+            /// 事件上线文类
             //每种事件有想要的实例
             struct EventContext
             {
+                ///事件执行的调度器
                 Scheduler* scheduler=nullptr;//要在哪一个scheduler上执行  事件执行的scheduler
+                ///事件协程
                 Fiber::ptr fiber; //事件的协程
+                ///事件回调函数
                 std::function<void()> cb; //事件的回调函数
             };
             int fd; //事件关联的句柄

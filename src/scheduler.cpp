@@ -85,7 +85,7 @@ namespace version04
     }
     void Scheduler::run()
     {
-        ULOG_INFO("main", "Scheduler::run");
+        ULOG_INFO_SRC("main", "Scheduler::run");
         SetThis();
         // 首先看是不是子线程，还要看这个子线程是不是初次调用
         if (m_rootThread != version04::GetThreadId())
@@ -163,7 +163,7 @@ namespace version04
                 }
                 else
                 {
-                    // ULOG_INFO("main","callback address:{}",typeid(ft.cb).name());
+                    // ULOG_INFO_SRC("main","callback address:{}",typeid(ft.cb).name());
                     cb_fiber.reset(new Fiber(ft.cb));
                 }
                 ft.reset();
@@ -193,7 +193,7 @@ namespace version04
                 }
                 if (idle_fiber->getState() == Fiber::State::TERM)
                 {
-                    ULOG_INFO("main", "idle fiber term");
+                    ULOG_INFO_SRC("main", "idle fiber term");
                     break; // 这个是得到了stop退出命令 跳出循环，然后使线程离开作用域，类对象析构了 这个对应的线程的运行也就结束了
                 }
                 ++m_idleThreadCount;
@@ -209,15 +209,15 @@ namespace version04
     // 唤醒一下 给继承的子类预留
     void Scheduler::tickle()
     {
-        ULOG_INFO("main", "tickle");
+        ULOG_INFO_SRC("main", "tickle");
     }
     void Scheduler::idle()
     {
-        // ULOG_INFO("main", "idle====");
-        ULOG_INFO("main", "idle,{}",stopping());
+        // ULOG_INFO_SRC("main", "idle====");
+        ULOG_INFO_SRC("main", "idle,{}",stopping());
         while (!stopping())
         {
-            // ULOG_INFO("main", "idle stopping");
+            // ULOG_INFO_SRC("main", "idle stopping");
             version04::Fiber::YieldToHold();
         }
     }
@@ -231,7 +231,7 @@ namespace version04
         //判定：使用use_caller，并且只有一个这一个use_caller线程（没有其他线程），并且主协程的状态为结束或者初始化
         if (m_rootFiber && m_threadCount == 0 && (m_rootFiber->getState() == Fiber::State::TERM || m_rootFiber->getState() == Fiber::State::INIT))
         {
-            ULOG_INFO("main", "stopped");
+            ULOG_INFO_SRC("main", "stopped");
             //停止状态为true
             m_stopping = true;
 
@@ -280,7 +280,7 @@ namespace version04
                 //所以这个use_caller这个线程将去执行run，这也就意味着后续没有办法向m_fibers队列中添加新任务了
                 //（因为当使用use_caller线程已经去执行这个run了，除非有另外空闲的线程）
             }
-            ULOG_INFO("main", "->back");
+            ULOG_INFO_SRC("main", "->back");
         }
 
         // if(exit_on_this_fiber) {
@@ -302,7 +302,7 @@ namespace version04
     {
         // 上了该协程调度器的锁
         MutexType::Lock lock(m_mutex);
-        // ULOG_INFO("main", "stopping:{},{},{},{}", m_autoStop, m_stopping, m_fibers.empty(), m_activateThreadCount == 0);
+        // ULOG_INFO_SRC("main", "stopping:{},{},{},{}", m_autoStop, m_stopping, m_fibers.empty(), m_activateThreadCount == 0);
         lock.unlock();
         return m_autoStop && m_stopping && m_fibers.empty() && m_activateThreadCount == 0;
     }

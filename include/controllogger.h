@@ -23,11 +23,11 @@ using json = nlohmann::json;
     ControlLogger::instance().log(ControlLogger::Level::TRACE, logger, \
         "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
 
-#define ULOG_DEBUG(logger, ...) \
+#define ULOG_DEBUG_SRC(logger, ...) \
     ControlLogger::instance().log(ControlLogger::Level::DEBUG, logger, \
         "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
 
-#define ULOG_INFO(logger, ...) \
+#define ULOG_INFO_SRC(logger, ...) \
     ControlLogger::instance().log(ControlLogger::Level::INFO, logger, \
         "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
 

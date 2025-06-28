@@ -29,7 +29,7 @@ namespace version04
     }
     Thread::Thread(std::function<void()> cb, const std::string &name):m_cb(cb),m_name(name)
     {
-        ULOG_DEBUG("main","Thread::Thread: {}",m_name);
+        ULOG_DEBUG_SRC("main","Thread::Thread: {}",m_name);
         if(name.empty())
         {
             m_name="UNKNOWN";
@@ -37,8 +37,8 @@ namespace version04
         int rt=pthread_create(&m_thread,nullptr,Thread::run,this); 
         if(rt!=0)
         {
-            // ULOG_ERROR("system","pthread_create error");
-            ULOG_ERROR("system","pthread_create error,rt={} name={}",rt,m_name);
+            // ULOG_ERROR_SRC("system","pthread_create error");
+            ULOG_ERROR_SRC("system","pthread_create error,rt={} name={}",rt,m_name);
             throw std::logic_error("pthread_create error");
         }
         m_semphore.wait();
@@ -57,8 +57,8 @@ namespace version04
             int rt=pthread_join(m_thread,nullptr);//这个类的创建和类相关函数的调用是主线程做的，只有Thread::run其实是子线程执行的
             if(rt)
             {
-                // ULOG_ERROR("system","pthread_join error");
-                ULOG_ERROR("system","pthread_join error,rt={} name={}",rt,m_name);
+                // ULOG_ERROR_SRC("system","pthread_join error");
+                ULOG_ERROR_SRC("system","pthread_join error,rt={} name={}",rt,m_name);
                 throw std::logic_error("pthread_join error");
             }
             m_thread=0;

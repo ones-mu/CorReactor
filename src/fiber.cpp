@@ -51,7 +51,7 @@ namespace version04
         }
 
         ++s_fiber_count;
-        ULOG_DEBUG("main", "Fiber::Fiber");
+        ULOG_DEBUG_SRC("main", "Fiber::Fiber");
     }
     /*
         有参构造函数，用于创建子协程
@@ -63,7 +63,7 @@ namespace version04
         std::string expr = config_json_base["fiber"][0]["stack_size"];
         m_stacksize = stacksize ? stacksize : version04::evaluate_expression(expr);
         // m_stacksize = stacksize;
-        ULOG_INFO("main", "Fiber::Fiber id= {}, stacksize= {}", m_id, m_stacksize);
+        ULOG_INFO_SRC("main", "Fiber::Fiber id= {}, stacksize= {}", m_id, m_stacksize);
         m_stack = StackAllocator::Alloc(m_stacksize);
         VERSION04_ASSERT2(m_stack, "malloc stack");
         if (getcontext(&m_ctx))
@@ -81,7 +81,7 @@ namespace version04
             makecontext(&m_ctx,&Fiber::CallerMainFunc,0);
         }
 
-        ULOG_DEBUG("main", "Fiber::Fiber id= {}", m_id);
+        ULOG_DEBUG_SRC("main", "Fiber::Fiber id= {}", m_id);
     }
 
     Fiber::~Fiber()
@@ -105,7 +105,7 @@ namespace version04
                 SetThis(nullptr);
             }
         }
-        ULOG_DEBUG("main", "Fiber::~Fiber id= {}", m_id);
+        ULOG_DEBUG_SRC("main", "Fiber::~Fiber id= {}", m_id);
     }
 
     void Fiber::SetThis(Fiber *f)
@@ -146,14 +146,14 @@ namespace version04
         catch (std::exception &ex)
         {
             cur->m_state = State::EXCEPT;
-            ULOG_ERROR("system", "Fiber Except: {} fiber_id= {}\n", ex.what(), cur->getId());
+            ULOG_ERROR_SRC("system", "Fiber Except: {} fiber_id= {}\n", ex.what(), cur->getId());
             VERSION04_ASSERT(false);
         }
         catch (...)
         {
 
             cur->m_state = State::EXCEPT;
-            ULOG_ERROR("system", "Fiber Except, fiber_id= {}\n", cur->getId());
+            ULOG_ERROR_SRC("system", "Fiber Except, fiber_id= {}\n", cur->getId());
             VERSION04_ASSERT(false);
         }
         auto raw_ptr=cur.get();
@@ -175,14 +175,14 @@ namespace version04
         catch (std::exception &ex)
         {
             cur->m_state = State::EXCEPT;
-            ULOG_ERROR("system", "Fiber Except: {} fiber_id= {}\n", ex.what(), cur->getId());
+            ULOG_ERROR_SRC("system", "Fiber Except: {} fiber_id= {}\n", ex.what(), cur->getId());
             VERSION04_ASSERT(false);
         }
         catch (...)
         {
 
             cur->m_state = State::EXCEPT;
-            ULOG_ERROR("system", "Fiber Except, fiber_id= {}\n", cur->getId());
+            ULOG_ERROR_SRC("system", "Fiber Except, fiber_id= {}\n", cur->getId());
             VERSION04_ASSERT(false);
         }
         auto raw_ptr=cur.get();
@@ -216,7 +216,7 @@ namespace version04
     {
         SetThis(this);
         m_state = State::EXEC;
-        ULOG_ERROR("system", "{}", getId());
+        ULOG_ERROR_SRC("system", "{}", getId());
         if (swapcontext(&t_threadFiber->m_ctx, &m_ctx))
         {
             VERSION04_ASSERT2(false, "call() swapcontext");

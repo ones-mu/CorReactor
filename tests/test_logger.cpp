@@ -19,8 +19,8 @@ int main(void)
     ControlLogger::instance().initializeFromFile("config/config.json");
 
     //记录日志
-    ULOG_INFO("main","Application started");
-    // ULOG_DEBUG("main","Initializing with config:{}",config_json.dump());
+    ULOG_INFO_SRC("main","Application started");
+    // ULOG_DEBUG_SRC("main","Initializing with config:{}",config_json.dump());
 
     return 0;
 }

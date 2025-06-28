@@ -9,7 +9,7 @@
 #define VERSION04_ASSERT(x) \
     do { \
         if (!(x)) { \
-            ULOG_ERROR("system", "ASSERTION: {}\n backtrace:\n {}", #x, version04::BacktraceToString(100, 2, " ")); \
+            ULOG_ERROR_SRC("system", "ASSERTION: {}\n backtrace:\n {}", #x, version04::BacktraceToString(100, 2, " ")); \
             assert(x); \
         } \
     } while (0)
@@ -17,7 +17,7 @@
 #define VERSION04_ASSERT2(x, w) \
     do { \
         if (!(x)) { \
-            ULOG_ERROR("system", "ASSERTION: {}\n{}\n backtrace:\n {}", #x, w, version04::BacktraceToString(100, 0, " ")); \
+            ULOG_ERROR_SRC("system", "ASSERTION: {}\n{}\n backtrace:\n {}", #x, w, version04::BacktraceToString(100, 0, " ")); \
             assert(x); \
         } \
     } while (0)

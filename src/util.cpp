@@ -22,7 +22,7 @@ namespace version04
         char** strings=backtrace_symbols(buffer,ntprs);
         if(strings==nullptr)
         {
-            ULOG_ERROR("system","backtrace_symbols error");
+            ULOG_ERROR_SRC("system","backtrace_symbols error");
             return;
         }
         for(int i=skip;i<ntprs;i++)
