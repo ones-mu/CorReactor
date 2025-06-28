@@ -62,8 +62,10 @@ namespace version04
         nlohmann::json config_json_base = get_config();
         std::string expr = config_json_base["fiber"][0]["stack_size"];
         m_stacksize = stacksize ? stacksize : version04::evaluate_expression(expr);
-        // ULOG_INFO("main", "Fiber::Fiber id= {}, stacksize= {}", m_id, m_stacksize);
+        // m_stacksize = stacksize;
+        ULOG_INFO("main", "Fiber::Fiber id= {}, stacksize= {}", m_id, m_stacksize);
         m_stack = StackAllocator::Alloc(m_stacksize);
+        VERSION04_ASSERT2(m_stack, "malloc stack");
         if (getcontext(&m_ctx))
         {
             VERSION04_ASSERT2(false, "getcontext");
@@ -73,7 +75,6 @@ namespace version04
         m_ctx.uc_stack.ss_size = m_stacksize;
         if(!use_caller)
         {
-
             makecontext(&m_ctx, Fiber::MainFunc, 0);
         }else
         {
@@ -213,6 +214,7 @@ namespace version04
     // 看起来是 从主协程-> 当前协程 上下文切换
     void Fiber::call()
     {
+        SetThis(this);
         m_state = State::EXEC;
         ULOG_ERROR("system", "{}", getId());
         if (swapcontext(&t_threadFiber->m_ctx, &m_ctx))
@@ -243,7 +245,7 @@ namespace version04
     }
     void Fiber::swapOut()
     {
-        SetThis(t_threadFiber.get());
+        SetThis(Scheduler::GetMainFiber());
         // m_state=State::READY;
         if (swapcontext(&m_ctx, &Scheduler::GetMainFiber()->m_ctx))
         {

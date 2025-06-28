@@ -25,11 +25,12 @@ namespace version04
         static Fiber* GetMainFiber();//获取线程的主协程
         void start();
         void stop();
-
+        void run(); //真正在执行协程调度的方法
         //要在协程调度器里面执行协程
         template<class FiberOrcb>
         void schedule(FiberOrcb fc,int thread=-1)
         {
+            ULOG_INFO("main","schedule add");
             bool need_tickle=false;
             {
                 MutexType::Lock lock(m_mutex);
@@ -61,7 +62,7 @@ namespace version04
 
     protected:
         virtual void tickle();
-        void run(); //真正在执行协程调度的方法
+        
         virtual void idle();
         virtual bool stopping();
         void SetThis();
@@ -115,7 +116,7 @@ namespace version04
         std::list<ScheduleTask> m_fibers; //任务队列? m_tasks  即将要执行/或者说计划要执行的协程
         std::string m_name;//协程调度器名词
         // use_caller为true时，调度器所在线程的调度协程
-        Fiber::ptr m_rootFiber;//智能指针 指向它
+        Fiber::ptr m_rootFiber;
 
 
     protected:

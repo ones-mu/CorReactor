@@ -20,8 +20,10 @@ namespace version04
             // 在创建携程调度器的时候 应该保证一个线程只有一个携程调度器（这种是不是一般普遍用单例模式实现？）
             VERSION04_ASSERT2(GetThis() == nullptr, "The thread already has a coroutine scheduler");
             t_scheduler = this;
+            // SetThis();
 
-            m_rootFiber.reset(new Fiber(std::bind(&Scheduler::run, this))); // 建立了一个子协程做调度器的调度协程？
+            m_rootFiber.reset(new Fiber(std::bind(&Scheduler::run, this), 0, true)); // 建立了一个子协程做调度器的调度协程？
+            version04::Thread::SetName(m_name);
             t_scheduler_fiber = m_rootFiber.get();
             m_rootThread = version04::GetThreadId();
             m_threadIds.push_back(m_rootThread); // 放到线程Id的列表中
@@ -84,6 +86,7 @@ namespace version04
     void Scheduler::run()
     {
         ULOG_INFO("main", "Scheduler::run");
+        SetThis();
         // 首先看是不是子线程，还要看这个子线程是不是初次调用
         if (m_rootThread != version04::GetThreadId())
         {
@@ -99,7 +102,7 @@ namespace version04
         // 每个线程应该是循环执行这部分的
         while (true)
         {
-            ft.reset(); // 这个reset是这个类中自定义的函数， 目的是全部置9
+            ft.reset(); // 这个reset是这个类中自定义的函数， 目的是全部置nullptr
             bool tickle_me = false;
             bool is_active = false;
 
@@ -128,6 +131,7 @@ namespace version04
                 is_active = true;
                 break;
             }
+            lock.unlock();
             // 说明遇到了有指定特定线程的情况
             if (tickle_me)
             {
@@ -163,7 +167,6 @@ namespace version04
                     cb_fiber.reset(new Fiber(ft.cb));
                 }
                 ft.reset();
-                ++m_activateThreadCount;
                 cb_fiber->swapIn();
                 --m_activateThreadCount;
                 if (cb_fiber->getState() == Fiber::State::READY)
@@ -193,7 +196,7 @@ namespace version04
                     ULOG_INFO("main", "idle fiber term");
                     break; // 这个是得到了stop退出命令 跳出循环，然后使线程离开作用域，类对象析构了 这个对应的线程的运行也就结束了
                 }
-
+                ++m_idleThreadCount;
                 idle_fiber->swapIn();
                 --m_idleThreadCount;
                 if (idle_fiber->getState() != Fiber::State::TERM && idle_fiber->getState() != Fiber::State::EXCEPT)
@@ -203,39 +206,33 @@ namespace version04
             }
         }
     }
-
+    // 唤醒一下 给继承的子类预留
     void Scheduler::tickle()
     {
         ULOG_INFO("main", "tickle");
     }
     void Scheduler::idle()
     {
-        ULOG_INFO("main", "idle");
+        // ULOG_INFO("main", "idle====");
+        ULOG_INFO("main", "idle,{}",stopping());
         while (!stopping())
         {
+            // ULOG_INFO("main", "idle stopping");
             version04::Fiber::YieldToHold();
         }
     }
     // 我看这个stop也只有主线程会调用吧？
     // 主线程和子线程分离的逻辑竟然在这里，那也就是没有线程手动回收了，完全以类对象的形式结束作用域进行回收
     // 这里这个逻辑设置有问题吧？ 这个开始的时候判断？那
-    void Scheduler::stop()
+    void Scheduler::stop() //停止调度器
     {
-        std::vector<Thread::ptr> thrs;
-        {
-            MutexType::Lock lock(m_mutex);
-            thrs.swap(m_threads);
-        }
-
-        for (auto &i : thrs)
-        {
-            i->join();
-        }
-        
+        //进入stop将自动停止设置为true
         m_autoStop = true;
+        //判定：使用use_caller，并且只有一个这一个use_caller线程（没有其他线程），并且主协程的状态为结束或者初始化
         if (m_rootFiber && m_threadCount == 0 && (m_rootFiber->getState() == Fiber::State::TERM || m_rootFiber->getState() == Fiber::State::INIT))
         {
             ULOG_INFO("main", "stopped");
+            //停止状态为true
             m_stopping = true;
 
             if (stopping())
@@ -243,12 +240,13 @@ namespace version04
                 return;
             }
         }
-
+        //m_rootThread!=-1 说明使用了use_caller,对于使用了use_caller来说，use_caller就是协程调度器
         // bool exit_on_this_fiber = false;
         if (m_rootThread != -1)
         {
             VERSION04_ASSERT(GetThis() == this);
         }
+        //非use_caller，此时的协程调度器t_secheduler==nullptr (至少不是调度这个的线程)
         else
         {
             VERSION04_ASSERT(GetThis() != this);
@@ -264,7 +262,7 @@ namespace version04
         {
             tickle();
         }
-
+        //如果使用use_caller，只要没达到停止条件，调度器主协程交出执行权，执行run
         if (m_rootFiber)
         {
             // while(!stopping()) {
@@ -278,19 +276,34 @@ namespace version04
             // }
             if (!stopping())
             {
-                m_rootFiber->call();
+                m_rootFiber->call();//这个call是协程上的函数，是从从主协程，到当前这个协程绑定的上下文，这个use_caller中的m_rootFiber绑定的也是run，
+                //所以这个use_caller这个线程将去执行run，这也就意味着后续没有办法向m_fibers队列中添加新任务了
+                //（因为当使用use_caller线程已经去执行这个run了，除非有另外空闲的线程）
             }
+            ULOG_INFO("main", "->back");
         }
 
         // if(exit_on_this_fiber) {
         // }
+        std::vector<Thread::ptr> thrs;
+        {
+            MutexType::Lock lock(m_mutex);
+            thrs.swap(m_threads);
+        }
+
+        for (auto &i : thrs)
+        {
+            i->join();
+        }
     }
 
-    // 这个是判断是否要停止 还是是否已经停下来了
+    // 这个是判断停止条件是否满足，当自动停止&&正在停止&&任务队列为空&&活跃的线程数量为0 
     bool Scheduler::stopping()
     {
         // 上了该协程调度器的锁
         MutexType::Lock lock(m_mutex);
+        // ULOG_INFO("main", "stopping:{},{},{},{}", m_autoStop, m_stopping, m_fibers.empty(), m_activateThreadCount == 0);
+        lock.unlock();
         return m_autoStop && m_stopping && m_fibers.empty() && m_activateThreadCount == 0;
     }
 
