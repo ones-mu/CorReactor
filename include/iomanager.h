@@ -13,9 +13,13 @@ namespace version04
 
         enum class Event
         {
+            ///无事件
             NONE = 0x0,
+            ///读事件(EPOLLIN)
             READ = 0x1,
+            ///写事件(EPOLLOUT)
             WRITE = 0x4,
+            ///错误事件(EPOLLERR)
             // ERROR = 0x8,
         };
 

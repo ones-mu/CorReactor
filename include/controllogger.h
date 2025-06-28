@@ -43,12 +43,12 @@ using json = nlohmann::json;
         "[Thread:{}][Fiber:{}] " __VA_ARGS__, version04::GetThreadId(), version04::GetFiberId())
 */
 // 带源文件位置的日志宏
-#define ULOG_TRACE_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::TRACE, logger, "{}:{} - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
-#define ULOG_DEBUG_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::DEBUG, logger, "{}:{} - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
-#define ULOG_INFO_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::INFO, logger, "{}:{} - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
-#define ULOG_WARN_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::WARN, logger, "{}:{} - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
-#define ULOG_ERROR_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::ERROR, logger, "{}:{} - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
-#define ULOG_CRITICAL_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::CRITICAL, logger, "{}:{} - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
+#define ULOG_TRACE_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::TRACE, logger, "[{}:{}] - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
+#define ULOG_DEBUG_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::DEBUG, logger, "[{}:{}] - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
+#define ULOG_INFO_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::INFO, logger, "[{}:{}] - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
+#define ULOG_WARN_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::WARN, logger, "[{}:{}] - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
+#define ULOG_ERROR_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::ERROR, logger, "[{}:{}] - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
+#define ULOG_CRITICAL_SRC(logger, ...) ControlLogger::instance().log(ControlLogger::Level::CRITICAL, logger, "[{}:{}] - {}", __FILE__, __LINE__, fmt::format(__VA_ARGS__))
 
 class ControlLogger
 {
@@ -115,8 +115,8 @@ public:
         auto logger = getLogger(logger_name);
         if (logger)
         {
-            // 添加线程和纤程ID前缀
-            auto full_msg = fmt::format("[Thread:{}][Fiber:{}] {}", 
+            // 添加线程和协程ID前缀
+            auto full_msg = fmt::format("   [Thread:{}]  [Fiber:{}]    {}", 
                                   version04::GetThreadId(), 
                                   version04::GetFiberId(),
                                   fmt::format(fmt,std::forward<Args>(args)...));
