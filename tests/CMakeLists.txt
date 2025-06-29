@@ -98,3 +98,12 @@ force_redefine_file_macro_for_sources(test_evaluate_expression)
 add_dependencies(test_evaluate_expression REACTORWEBSERVER)
 target_include_directories(test_evaluate_expression PUBLIC ${ABS_SRC_DIR_INCLUDE})
 target_link_libraries(test_evaluate_expression PRIVATE REACTORWEBSERVER)
+
+
+# 精简了一下写法 
+
+set (LIBS
+    REACTORWEBSERVER)
+
+# test_iomanager
+add_extra_test_executable(test_iomanager test_iomanager.cpp REACTORWEBSERVER ${LIBS})

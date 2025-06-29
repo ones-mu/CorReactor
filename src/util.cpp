@@ -1,5 +1,6 @@
-#include "util.h"
 #include <execinfo.h>
+#include <sys/time.h>
+#include "util.h"
 #include "controllogger.h"
 #include "fiber.h"
 namespace version04
@@ -16,16 +17,16 @@ namespace version04
 
     void Backtrace(std::vector<std::string> &bt, int size, int skip)
     {
-        void** buffer=(void**) malloc(sizeof(void*)*size);
+        void **buffer = (void **)malloc(sizeof(void *) * size);
         int ntprs;
-        ntprs=::backtrace(buffer,size);
-        char** strings=backtrace_symbols(buffer,ntprs);
-        if(strings==nullptr)
+        ntprs = ::backtrace(buffer, size);
+        char **strings = backtrace_symbols(buffer, ntprs);
+        if (strings == nullptr)
         {
-            ULOG_ERROR_SRC("system","backtrace_symbols error");
+            ULOG_ERROR_SRC("system", "backtrace_symbols error");
             return;
         }
-        for(int i=skip;i<ntprs;i++)
+        for (int i = skip; i < ntprs; i++)
         {
             bt.push_back(strings[i]);
         }
@@ -38,24 +39,38 @@ namespace version04
         std::vector<std::string> bt;
         Backtrace(bt, size, skip);
         std::stringstream ss;
-        for(auto& s : bt)
+        for (auto &s : bt)
         {
-            ss<<prefix<<s<<std::endl;
+            ss << prefix << s << std::endl;
         }
         return ss.str();
     }
 
-    int evaluate_expression(const std::string& expr)
+    int evaluate_expression(const std::string &expr)
     {
-        size_t pos=expr.find('*');
-        if(pos!=std::string::npos)
+        size_t pos = expr.find('*');
+        if (pos != std::string::npos)
         {
-            int a=std::stoi(expr.substr(0,pos));
-            int b=std::stoi(expr.substr(pos+1));
-            return a*b;
-        }else
-        {
-            return std::stoi(expr);//如果不是表达式，直接转换
+            int a = std::stoi(expr.substr(0, pos));
+            int b = std::stoi(expr.substr(pos + 1));
+            return a * b;
         }
+        else
+        {
+            return std::stoi(expr); // 如果不是表达式，直接转换
+        }
+    }
+    uint64_t GetCurrentMS()
+    {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        return tv.tv_sec * 1000ul + tv.tv_usec / 1000;
+    }
+
+    uint64_t GetCurrentUS()
+    {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        return tv.tv_sec * 1000 * 1000ul + tv.tv_usec;
     }
 }
