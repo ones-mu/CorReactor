@@ -107,3 +107,4 @@ set (LIBS
 
 # test_iomanager
 add_extra_test_executable(test_iomanager test_iomanager.cpp REACTORWEBSERVER ${LIBS})
+add_extra_test_executable(test_hook test_hook.cpp REACTORWEBSERVER ${LIBS})
