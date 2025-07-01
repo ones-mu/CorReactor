@@ -6,7 +6,7 @@
 #include <ifaddrs.h>
 #include <stddef.h>
 
-#include "endian.h"
+#include "endian_cpp.h"
 
 namespace version04
 {
