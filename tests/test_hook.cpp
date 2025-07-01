@@ -65,9 +65,9 @@ void test_sock()
 
 int main(void)
 {
-    test_sleep();
     version04::initLogs();
-    version04::IOManager iom;
+    test_sleep();
+    // version04::IOManager iom;
     // iom.schedule(test_sock);
     return 0;
 }

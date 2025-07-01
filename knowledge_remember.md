@@ -27,3 +27,6 @@ thread_local 是 C++11 引入的存储期说明符（storage specifier），用�
 c++标准库的异常类，
 头文件是#include <stdexcept>
 std::logic_error 继承自 std::exception，其派生类还包括 std::invalid_argument、std::domain_error 等
+
+## hook
+hook的目的就是为了将同步的io转成异步的io，让写逻辑的人用同步的方式性能上实现异步的性能，如果直接写异步就是一堆回调链路，很容易出问题
