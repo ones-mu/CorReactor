@@ -46,6 +46,7 @@ set(SRC_LIST_LIBRARY
     src/fd_manager.cpp
     src/address.cpp
     src/hook.cpp
+    src/config.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST_LIBRARY})
