@@ -49,7 +49,7 @@ byteswap(T value) {
 #if SYLAR_BYTE_ORDER == SYLAR_BIG_ENDIAN
 
 /**
- * @brief 只在小端机器上执行byteswap, 在大端机器上什么都不做
+ * @brief 
  */
 template<class T>
 T byteswapOnLittleEndian(T t) {
@@ -74,7 +74,7 @@ T byteswapOnLittleEndian(T t) {
 }
 
 /**
- * @brief 只在大端机器上执行byteswap, 在小端机器上什么都不做
+ * @brief 
  */
 template<class T>
 T byteswapOnBigEndian(T t) {

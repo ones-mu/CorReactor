@@ -75,7 +75,7 @@ namespace version04
     bool Address::Lookup(std::vector<Address::ptr> &result, const std::string &host,
                          int family, int type, int protocol)
     {
-        addrinfo hints, *results, *next;
+        struct addrinfo hints, *results, *next;
         hints.ai_flags = 0;
         hints.ai_family = family;
         hints.ai_socktype = type;
@@ -91,27 +91,35 @@ namespace version04
         // 检查 ipv6address serivce
         if (!host.empty() && host[0] == '[')
         {
+            // 查找第一个]的位置，返回该指针
             const char *endipv6 = (const char *)memchr(host.c_str() + 1, ']', host.size() - 1);
+            // 找到了]
             if (endipv6)
             {
-                // TODO check out of range
+                // TODO check out of range 是否为
                 if (*(endipv6 + 1) == ':')
                 {
+                    // endipv6后两个字节为端口号
                     service = endipv6 + 2;
                 }
+                // 地址为[]里的内容
                 node = host.substr(1, endipv6 - host.c_str() - 1);
             }
         }
 
         // 检查 node serivce
+        // 这时如果为空说明是ipv4地址
         if (node.empty())
         {
             service = (const char *)memchr(host.c_str(), ':', host.size());
             if (service)
             {
+                // 后面没有:了
                 if (!memchr(service + 1, ':', host.c_str() + host.size() - service - 1))
                 {
+                    // 拿到地址
                     node = host.substr(0, service - host.c_str());
+                    // 后面就是端口号
                     ++service;
                 }
             }
@@ -124,7 +132,7 @@ namespace version04
         int error = getaddrinfo(node.c_str(), service, &hints, &results);
         if (error)
         {
-            ULOG_ERROR_SRC("system","Address::Lookup getaddress(host:{},family:{},type:{}),err={},errstr={}",host,family,type,error,gai_strerror(error));
+            ULOG_ERROR_SRC("system", "Address::Lookup getaddress(host:{},family:{},type:{}),err={},errstr={}", host, family, type, error, gai_strerror(error));
             return false;
         }
 
@@ -135,18 +143,18 @@ namespace version04
             // SYLAR_LOG_INFO(g_logger) << ((sockaddr_in*)next->ai_addr)->sin_addr.s_addr;
             next = next->ai_next;
         }
-
+        // 释放results指针指向的内存
         freeaddrinfo(results);
         return true;
     }
-
+    // （返回本机所有网卡的<网卡名, 地址, 子网掩码位数>）
     bool Address::GetInterfaceAddresses(std::multimap<std::string, std::pair<Address::ptr, uint32_t>> &result,
                                         int family)
     {
         struct ifaddrs *next, *results;
         if (getifaddrs(&results) != 0)
         {
-            ULOG_ERROR_SRC("system","Address::GetInterfaceAddresses getifaddrs err={},errstr={}",errno,strerror(errno));
+            ULOG_ERROR_SRC("system", "Address::GetInterfaceAddresses getifaddrs err={},errstr={}", errno, strerror(errno));
             return false;
         }
 
@@ -186,14 +194,16 @@ namespace version04
 
                 if (addr)
                 {
-                    result.insert(std::make_pair(next->ifa_name,
-                                                 std::make_pair(addr, prefix_len)));
+                    //网卡名：地址和前缀和
+                    // result.insert(std::make_pair(next->ifa_name, std::make_pair(addr, prefix_len)));
+                    result.emplace(next->ifa_name, std::make_pair(addr, prefix_len));
+
                 }
             }
         }
         catch (...)
         {
-            ULOG_ERROR_SRC("system","Address::GetInterfaceAddresses exception");
+            ULOG_ERROR_SRC("system", "Address::GetInterfaceAddresses exception");
             freeifaddrs(results);
             return false;
         }
@@ -306,7 +316,7 @@ namespace version04
         int error = getaddrinfo(address, NULL, &hints, &results);
         if (error)
         {
-            ULOG_ERROR_SRC("system","IPAddress::Create(address:{},port:{}),err={},errno={},errstr={}",address,port,error,errno,gai_strerror(error));
+            ULOG_ERROR_SRC("system", "IPAddress::Create(address:{},port:{}),err={},errno={},errstr={}", address, port, error, errno, gai_strerror(error));
             return nullptr;
         }
 
@@ -335,7 +345,7 @@ namespace version04
         int result = inet_pton(AF_INET, address, &rt->m_addr.sin_addr);
         if (result <= 0)
         {
-            ULOG_ERROR_SRC("system","IPv4Address::Create(address:{},port:{}),rt={},errno={},errstr={}",address,port,result,errno,strerror(errno));
+            ULOG_ERROR_SRC("system", "IPv4Address::Create(address:{},port:{}),rt={},errno={},errstr={}", address, port, result, errno, strerror(errno));
             return nullptr;
         }
         return rt;
@@ -368,7 +378,7 @@ namespace version04
     {
         return sizeof(m_addr);
     }
-
+    //可读性输出地址
     std::ostream &IPv4Address::insert(std::ostream &os) const
     {
         uint32_t addr = byteswapOnLittleEndian(m_addr.sin_addr.s_addr);
@@ -379,7 +389,7 @@ namespace version04
         os << ":" << byteswapOnLittleEndian(m_addr.sin_port);
         return os;
     }
-
+    //返回广播地址
     IPAddress::ptr IPv4Address::broadcastAddress(uint32_t prefix_len)
     {
         if (prefix_len > 32)
@@ -392,7 +402,7 @@ namespace version04
             CreateMask<uint32_t>(prefix_len));
         return IPv4Address::ptr(new IPv4Address(baddr));
     }
-
+    //返回网络地址
     IPAddress::ptr IPv4Address::networdAddress(uint32_t prefix_len)
     {
         if (prefix_len > 32)
@@ -405,7 +415,7 @@ namespace version04
             CreateMask<uint32_t>(prefix_len));
         return IPv4Address::ptr(new IPv4Address(baddr));
     }
-
+    //返回子网掩码地址
     IPAddress::ptr IPv4Address::subnetMask(uint32_t prefix_len)
     {
         sockaddr_in subnet;
@@ -414,12 +424,12 @@ namespace version04
         subnet.sin_addr.s_addr = ~byteswapOnLittleEndian(CreateMask<uint32_t>(prefix_len));
         return IPv4Address::ptr(new IPv4Address(subnet));
     }
-
+    //返回端口号
     uint32_t IPv4Address::getPort() const
     {
         return byteswapOnLittleEndian(m_addr.sin_port);
     }
-
+    //设置端口号
     void IPv4Address::setPort(uint16_t v)
     {
         m_addr.sin_port = byteswapOnLittleEndian(v);
@@ -432,7 +442,7 @@ namespace version04
         int result = inet_pton(AF_INET6, address, &rt->m_addr.sin6_addr);
         if (result <= 0)
         {
-            ULOG_ERROR_SRC("system","IPv6Address::Create(address:{},port:{}),rt={},errno={},errstr={}",address,port,result,errno,strerror(errno));
+            ULOG_ERROR_SRC("system", "IPv6Address::Create(address:{},port:{}),rt={},errno={},errstr={}", address, port, result, errno, strerror(errno));
             return nullptr;
         }
         return rt;

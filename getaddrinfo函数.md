@@ -55,3 +55,7 @@ getaddrinfo(NULL, "8080", &hints, &res);  // NULL表示本地地址
 socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 bind(sockfd, res->ai_addr, res->ai_addrlen);
 ```
+
+## 链表结构
+
+struct addrinfo 是一个链表结构，用于存储通过 getaddrinfo() 函数获取的地址信息。这个设计允许返回多个可能的地址结果，因为一个主机名可能对应多个 IP 地址（比如 IPv4 和 IPv6），或者一个服务可能对应多个端口/协议组合。
