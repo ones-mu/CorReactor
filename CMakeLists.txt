@@ -72,7 +72,14 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 
 # 8. 线程支持
 find_package(Threads REQUIRED)
+find_package(yaml-cpp REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+if(TARGET yaml-cpp::yaml-cpp)
+    target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp::yaml-cpp)
+else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp)
+endif()
+
 
 # 9. SPDLOG 配置
 option(SPDLOG_LEVEL "Set SPDLOG_ACTIVE_LEVEL (default: INFO)" INFO)

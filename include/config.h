@@ -13,7 +13,9 @@
 
 #include <memory>
 #include <sstream>
+
 #include <boost/lexical_cast.hpp> //类型转换
+#include <yaml-cpp/yaml.h>
 
 namespace version04
 {
@@ -182,8 +184,10 @@ namespace version04
             return std::dynamic_pointer_cast<ConfigVar<T>>(it->second);
         }
 
+        static void LoadFromYaml(const YAML::Node &root);
+
     public:
-        static ConfigVarMap s_datas;
-        static RWMutexType s_mutex;
+        inline static ConfigVarMap s_datas;//c++17之后可以使用inline，就不用在类外初始化了
+        inline static RWMutexType s_mutex;
     };
 }

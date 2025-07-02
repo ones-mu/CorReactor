@@ -30,3 +30,5 @@ std::logic_error 继承自 std::exception，其派生类还包括 std::invalid_a
 
 ## hook
 hook的目的就是为了将同步的io转成异步的io，让写逻辑的人用同步的方式性能上实现异步的性能，如果直接写异步就是一堆回调链路，很容易出问题
+
+## 
