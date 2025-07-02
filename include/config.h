@@ -157,7 +157,7 @@ namespace version04
                 ULOG_INFO_SRC("main", "Look up name={} exists", name);
                 return tmp;
             }
-            if (name.find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_.") != std::string::npos)
+            if (name.find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyz_.") != std::string::npos)
             {
                 ULOG_ERROR_SRC("system", "Look up name invalid name={}", name);
                 VERSION04_ASSERT2(false, "name invalid");
@@ -185,6 +185,7 @@ namespace version04
         }
 
         static void LoadFromYaml(const YAML::Node &root);
+        static ConfigVarBase::ptr LookupBase(const std::string &name);
 
     public:
         inline static ConfigVarMap s_datas;//c++17之后可以使用inline，就不用在类外初始化了

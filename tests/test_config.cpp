@@ -72,14 +72,25 @@ void test_yaml()
     }
 }
 
+void test_config()
+{
+    ULOG_INFO_SRC("main", "port is {}", g_float_value_config->getValue());
+    ULOG_INFO_SRC("main", "port is {}", g_int_value_config->toString());
+    ULOG_INFO_SRC("main", "port is {}", g_int_value_config->getValue());
+    ULOG_INFO_SRC("main", "port is {}", g_float_value_config->toString());
+    YAML::Node root = YAML::LoadFile("/home/wsl2_ubuntu_2204/workspace/c_workation/ReactorWebServer/conf/test.yml");
+    version04::Config::LoadFromYaml(root);
+    ULOG_INFO_SRC("main", "port is {}", g_float_value_config->getValue());
+    ULOG_INFO_SRC("main", "port is {}", g_int_value_config->toString());
+    ULOG_INFO_SRC("main", "port is {}", g_int_value_config->getValue());
+    ULOG_INFO_SRC("main", "port is {}", g_float_value_config->toString());
+}
+
 int main(void)
 {
     version04::initLogs();
-    test_yaml();
-    // ULOG_INFO_SRC("main","port is {}",g_int_value_config->getValue());
-    // ULOG_INFO_SRC("main","port is {}",g_int_value_config->toString());
-    // ULOG_INFO_SRC("main","port is {}",g_float_value_config->getValue());
-    // ULOG_INFO_SRC("main","port is {}",g_float_value_config->toString());
+    // test_yaml();
+    test_config();
 
     return 0;
 }
