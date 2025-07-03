@@ -47,6 +47,7 @@ set(SRC_LIST_LIBRARY
     src/address.cpp
     src/hook.cpp
     src/config.cpp
+    src/daemon.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST_LIBRARY})

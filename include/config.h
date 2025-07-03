@@ -412,6 +412,7 @@ namespace version04
             {
                 ULOG_INFO_SRC("system", "ConfigVar<T> toStirng() exception:e.what()={} convert string to{}-{};", e.what(), typeid(m_val).name(), val);
             }
+            return false;
         }
         const T getValue()
         {
