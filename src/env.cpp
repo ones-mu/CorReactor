@@ -4,11 +4,27 @@
 #include <cstring>
 #include <iostream>
 #include <iomanip> //setw
+#include <unistd.h>
+#include <stdlib.h>
 
 namespace version04
 {
     bool Env::init(int argc, char **argv)
     {
+
+        // 要读取他链接的地址
+        // 将软链接转成绝对路径 通过readlink
+        char link[1024] = {0}; // 链接的位置
+        char path[1024] = {0}; // 真正的位置
+        sprintf(link, "/proc/%d/exe", getpid());
+        readlink(link, path, sizeof(path));
+        // readlink(link, path, sizeof(path) - 1);
+        // /path/xxx/exe
+        m_exe = path;
+
+        auto pos = m_exe.find_last_of("/");
+        m_cwd = m_exe.substr(0, pos) + "/";
+
         m_program = argv[0];
         // -config /path/to/config  -file xxxx
         const char *now_key = nullptr;
@@ -99,10 +115,23 @@ namespace version04
         // }
 
         ULOG_INFO_SRC("main", "Usage: {} [options]", m_program);
-        for(auto &i : m_helps)
+        for (auto &i : m_helps)
         {
             ULOG_INFO_SRC("main", "-{} : {}", i.first, i.second);
         }
+    }
+    bool Env::setEnv(const std::string &key, const std::string &val)
+    {
+        return !setenv(key.c_str(), val.c_str(), 1);
+    }
 
+    std::string Env::getEnv(const std::string &key, const std::string &default_value)
+    {
+        const char *v = getenv(key.c_str());
+        if (v == nullptr)
+        {
+            return default_value;
+        }
+        return v;
     }
 }
