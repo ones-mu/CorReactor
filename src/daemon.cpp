@@ -7,6 +7,7 @@
 #include <error.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 namespace version04
 {
@@ -31,6 +32,8 @@ namespace version04
     static int real_deamon(int argc, char **argv,
                            std::function<int(int argc, char **argv)> main_cb)
     {
+
+        daemon(1, 0);//第一个是要不要使程序目前的工作目录使根目录（0是开启），第二个是要不要将标准输入输出重定向到/dev/null（0是要）
         ProcessInfoMgr::GetInstance()->parent_id = getpid();
         ProcessInfoMgr::GetInstance()->parent_start_time = time(0);
 
