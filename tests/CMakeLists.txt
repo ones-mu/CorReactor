@@ -124,3 +124,4 @@ add_extra_test_executable(test_config test_config.cpp REACTORWEBSERVER "${LIBS}"
 # target_link_libraries(test_config PRIVATE REACTORWEBSERVER yaml-cpp::yaml-cpp)
 
 add_extra_test_executable(test_daemon test_daemon.cpp REACTORWEBSERVER "${LIBS}")
+add_extra_test_executable(test_env test_env.cpp REACTORWEBSERVER "${LIBS}")
