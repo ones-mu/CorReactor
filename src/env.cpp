@@ -134,4 +134,16 @@ namespace version04
         }
         return v;
     }
+    std::string Env::getAbsolutePath(const std::string &path) const
+    {
+        if (path.empty())
+        {
+            return "/";
+        }
+        if (path[0] == '/')
+        {
+            return path;
+        }
+        return m_cwd + path;
+    }
 }

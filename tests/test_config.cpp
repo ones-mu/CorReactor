@@ -1,6 +1,8 @@
 #include "config.h"
 #include "controllogger.h"
 #include "util.h"
+#include "env.h"
+
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 #include <vector>
@@ -152,7 +154,7 @@ void test_config()
     {
         ULOG_INFO_SRC("main", "name is {}", i);
     }
-    YAML::Node root = YAML::LoadFile("/home/wsl2_ubuntu_2204/workspace/c_workation/ReactorWebServer/conf/test.yml");
+    YAML::Node root = YAML::LoadFile("/home/wsl2_ubuntu_2204/workspace/c_workation/ReactorWebServer/output/conf/test.yml");
     version04::Config::LoadFromYaml(root);
     ULOG_INFO_SRC("main", "port is {}", g_int_value_config->getValue());
     ULOG_INFO_SRC("main", "port is {}", g_int_value_config->toString());
@@ -160,12 +162,21 @@ void test_config()
     ULOG_INFO_SRC("main", "value is {}", g_float_value_config->toString());
 }
 
-int main(void)
+void test_loadconf() {
+    version04::Config::LoadFromConfDir("conf");
+}
+
+
+int main(int argc, char **argv)
 {
     version04::initLogs();
+    ULOG_INFO_SRC("main", "start");
+    version04::EnvMgr::GetInstance()->init(argc, argv);
+    test_loadconf();
+    ULOG_INFO_SRC("main", "end");
     // test_yaml();
     // test_config();
-    test_class();
+    // test_class();
 
     return 0;
 }

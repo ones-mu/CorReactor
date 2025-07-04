@@ -1,7 +1,11 @@
 #include "config.h"
+#include "env.h"
 
 #include <list>
 #include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 namespace version04
 {
@@ -22,7 +26,7 @@ namespace version04
     {
         if (prefix.find_first_not_of("abcdefghikjlmnopqrstuvwxyz._012345678") != std::string::npos)
         {
-            ULOG_ERROR_SRC("system", "Config invalid name: {}\n{}", prefix,YAML::Dump(node));
+            ULOG_ERROR_SRC("system", "Config invalid name: {}\n{}", prefix, YAML::Dump(node));
             return;
         }
         output.push_back(std::make_pair(prefix, node));
@@ -61,13 +65,49 @@ namespace version04
                 if (i.second.IsScalar())
                 {
                     var->fromString(i.second.Scalar());
-                    //否则为数组，将其转换为字符串
-                }else
+                    // 否则为数组，将其转换为字符串
+                }
+                else
                 {
                     std::stringstream ss;
                     ss << i.second;
                     var->fromString(ss.str());
                 }
+            }
+        }
+    }
+
+    static std::map<std::string, uint64_t> s_file2modifytime;
+    static version04::Mutex s_mutex_out;
+
+    void Config::LoadFromConfDir(const std::string &path)
+    {
+        std::string absoulite_path = version04::EnvMgr::GetInstance()->getAbsolutePath(path);
+        ULOG_INFO_SRC("main", "Config load dir = {}", absoulite_path);
+        std::vector<std::string> files;
+        version04::FSUtil::ListAllFile(files, absoulite_path, ".yml");
+        for (auto &file : files)
+        {
+            //看时间戳，时间戳没修改就不改，进阶的话用md5
+            struct stat st;
+            lstat(file.c_str(), &st);
+            {
+                version04::Mutex::Lock lock(s_mutex_out);
+                if (s_file2modifytime[file] == (uint64_t)st.st_mtime)
+                {
+                    continue;
+                }
+                s_file2modifytime[file] = st.st_mtime;
+            }
+            try
+            {
+                YAML::Node root = YAML::LoadFile(file);
+                LoadFromYaml(root);
+                ULOG_INFO_SRC("main", "Config load file {}", file);
+            }
+            catch (const YAML::Exception &e)
+            {
+                ULOG_ERROR_SRC("system", "Config load file {} failed: {}", file, e.what());
             }
         }
     }

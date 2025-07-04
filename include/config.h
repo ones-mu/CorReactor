@@ -543,6 +543,7 @@ namespace version04
         }
 
         static void LoadFromYaml(const YAML::Node &root);
+        static void LoadFromConfDir(const std::string &path);
         static ConfigVarBase::ptr LookupBase(const std::string &name);
 
     public:
