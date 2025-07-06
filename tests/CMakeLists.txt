@@ -126,3 +126,4 @@ add_extra_test_executable(test_config test_config.cpp REACTORWEBSERVER "${LIBS}"
 add_extra_test_executable(test_daemon test_daemon.cpp REACTORWEBSERVER "${LIBS}")
 add_extra_test_executable(test_env test_env.cpp REACTORWEBSERVER "${LIBS}")
 add_extra_test_executable(test_bytearray test_bytearray.cpp REACTORWEBSERVER "${LIBS}")
+add_extra_test_executable(test_http test_http.cpp REACTORWEBSERVER "${LIBS}")

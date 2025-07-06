@@ -50,6 +50,7 @@ set(SRC_LIST_LIBRARY
     src/daemon.cpp
     src/env.cpp
     src/bytearray.cpp
+    src/http/http.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST_LIBRARY})
