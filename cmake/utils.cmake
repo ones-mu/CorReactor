@@ -19,7 +19,7 @@ function(force_redefine_file_macro_for_sources targetname)
         set_property(
             SOURCE "${sourcefile}"
             PROPERTY COMPILE_DEFINITIONS ${defs}
-            )
+        )
     endforeach()
 endfunction()
 
@@ -45,4 +45,29 @@ function(add_extra_test_executable targetname src depends libs)
     force_redefine_file_macro_for_sources(${targetname})
     target_include_directories(${targetname} PUBLIC ${ABS_SRC_DIR_INCLUDE})
     target_link_libraries(${targetname} PRIVATE ${libs})
+endfunction()
+
+# 用于调用Ragel状态机编译器来处理.rl文件到C或C++
+# src_rl 输入的.rl文件 
+# outputlist 用于存储输出文件名的变量名
+# outputdir 输出文件所在的目录
+function(ragelmaker src_rl outputlist outputdir)
+    #获取文件名（不含扩展名）
+    get_filename_component(src_file ${src_rl} NAME_WE)
+    #设置输出文件路径
+    set(rl_out ${outputdir}/${src_file}.rl.cpp)
+    #将输出文件添加到父作用域的列表
+    # ${outputlist} 是传入的变量名
+    # ${${outputlist}} 获取该变量当前的值
+    # 将新输出文件路径追加到列表中
+    # PARENT_SCOPE 确保修改在函数外部可见
+    set(${outputlist} ${${outputlist}} ${rl_out} PARENT_SCOPE)
+    add_custom_command(
+        OUTPUT ${rl_out}
+        COMMAND cd ${outputdir}
+        COMMAND ragel ${CMAKE_CURRENT_SOURCE_DIR}/${src_rl} -o ${rl_out} -l -C -G2 --error-format=msvc
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${src_rl}
+    )
+    #告诉CMake，这个文件是构建过程中生成的，不是原始源文件
+    set_source_files_properties(${rl_out} PROPERTIES GENERATED TRUE)
 endfunction()

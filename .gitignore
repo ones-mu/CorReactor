@@ -8,3 +8,4 @@ include/spdlog
 logs/
 Base/
 !output/conf
+*.rl.cpp

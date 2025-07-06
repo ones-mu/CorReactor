@@ -51,7 +51,10 @@ set(SRC_LIST_LIBRARY
     src/env.cpp
     src/bytearray.cpp
     src/http/http.cpp
+    src/http/http_parser.cpp
 )
+ragelmaker(src/http/http11_parser.rl SRC_LIST_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/src/http)
+ragelmaker(src/http/httpclient_parser.rl SRC_LIST_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/src/http)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST_LIBRARY})
 
@@ -70,7 +73,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wno-deprecated-declarations>"
     "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wno-unused-function>"
     "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wno-unused-parameter>"      # 允许未使用的函数参数
-    # "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wno-implicit-fallthrough>"  # 允许 case 穿透 允许没有break
+    "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wno-implicit-fallthrough>"  # 允许 case 穿透 允许没有break
     # "$<$<CXX_COMPILER_ID:GNU,Clang>:-Wno-deprecated-enum-enum-conversion>"  # 允许不同枚举类型的位运算
 )
 

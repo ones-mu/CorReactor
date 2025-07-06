@@ -104,3 +104,55 @@ int main() {
 ## 配置的事件机制
 
 当一个配置项发生修改的时候，可以反向通知对应的代码、回调
+
+## http
+
+请求报文格式
+
+```yaml
+GET / HTTP/1.1  #请求行
+Host: www.baidu.com   #主机地址
+Connection: keep-alive   #表示TCP未断开
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64;x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36   #产生请求的浏览器类型
+Sec-Fetch-Dest: document
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Accept-Encoding: gzip, deflate, br
+Accept-Language: zh-CN,zh;q=0.9
+Cookie: ......    #用户安全凭证
+```
+
+```bash
+URI: http://www.sylar.top:80/page/xxx?id=10&v=20#fr
+http  协议
+www.sylar.top  host主机
+80  post端口
+/page/xxx 路径path
+id=10&v=20 参数query
+#fr fragment
+```
+
+响应报文格式
+
+```xml
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+Date: Mon, 05 Jun 2023 06:53:13 GMT
+Link: <http://www.sylar.top/blog/index.php?rest_route=/>; rel="https://api.w.org/"
+Server: nginx/1.12.2
+Transfer-Encoding: chunked
+X-Powered-By: PHP/7.0.33
+Connection: close
+Content-length: 45383
+​
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+<head>
+<meta charset="UTF-8">
+```
+
+http解析使用ragel 来自mongrel2库  里面使用了有限状态机 很多都是用正则表达式来做字符解析
+先解出来一个东西后面看是什么状态

@@ -429,7 +429,7 @@ namespace version04
                 }
                 for (auto &i : m_cbs)
                 {
-                    //对每个回调函数，传入当前的键值
+                    //对每个回调函数，传入当前的键值（这个回调是属于ConfigVar，一个配置变量就对应一个COnfigVar）
                     i.second(m_val, v);
                 }
             }
