@@ -39,7 +39,6 @@ void test_response() {
     tmp.resize(tmp.size() - s);
     ULOG_INFO_SRC("main","{}",parser.getData()->toString());
     ULOG_INFO_SRC("main","{}",tmp);
-
 }
 
 int main(int argc, char** argv) {
