@@ -66,7 +66,7 @@ namespace version04
         };
 
     public:
-        IOManager(size_t thread_num = 1, bool use_epoll = true, const std::string &name = "");
+        IOManager(size_t thread_num = 1, bool use_caller = true, const std::string &name = "");
         ~IOManager();
         /**
          * @brief 添加事件

@@ -52,6 +52,8 @@ set(SRC_LIST_LIBRARY
     src/bytearray.cpp
     src/http/http.cpp
     src/http/http_parser.cpp
+    src/socket.cpp
+    src/tcp_server.cpp
 )
 ragelmaker(src/http/http11_parser.rl SRC_LIST_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/src/http)
 ragelmaker(src/http/httpclient_parser.rl SRC_LIST_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/src/http)

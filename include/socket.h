@@ -9,8 +9,8 @@
 #include <netinet/tcp.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+// #include <openssl/err.h>
+// #include <openssl/ssl.h>
 #include "address.h"
 #include "noncopyable.h"
 
@@ -382,7 +382,7 @@ protected:
     /// 远端地址
     Address::ptr m_remoteAddress;
 };
-
+/*
 class SSLSocket : public Socket {
 public:
     typedef std::shared_ptr<SSLSocket> ptr;
@@ -415,12 +415,14 @@ private:
     std::shared_ptr<SSL> m_ssl;
 };
 
-/**
+
  * @brief 流式输出socket
  * @param[in, out] os 输出流
  * @param[in] sock Socket类
- */
+ 
 std::ostream& operator<<(std::ostream& os, const Socket& sock);
+*/
 
 }
+
 
