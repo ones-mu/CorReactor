@@ -9,3 +9,11 @@ logs/
 Base/
 !output/conf
 *.rl.cpp
+*.assets/
+# address_readme.assets/
+# *.md
+# *.jpg
+# *.png
+# *.ico
+# *.svg
+# *.gif
